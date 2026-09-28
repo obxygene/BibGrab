@@ -91,7 +91,7 @@ func fetchADS(doi: String, token: String, done: @escaping BibResult) {
     var c = URLComponents(string: "https://api.adsabs.harvard.edu/v1/search/query")!
     c.queryItems = [
         URLQueryItem(name: "q", value: doi.lowercased().hasPrefix("10.48550/arxiv.")
-            ? "identifier:\"arXiv:\(doi.dropFirst(16))\"" : "doi:\"\(doi)\""),
+            ? "identifier:\"arXiv:\(doi.dropFirst("10.48550/arxiv.".count))\"" : "doi:\"\(doi)\""),
         URLQueryItem(name: "fl", value: "bibcode"),
         URLQueryItem(name: "rows", value: "1"),
     ]

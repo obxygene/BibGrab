@@ -1,9 +1,29 @@
-name: macOS build
+name: Build and test
 on: [push, pull_request]
 jobs:
-  build:
+  macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - run: bash tests/run.sh
       - run: bash build.sh
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Check citation lookups with mock HTTP responses
+        run: dotnet run --project windows/BibGrab.Checks -c Release
+      - name: Build standalone Windows application
+        run: ./windows/build.ps1
+      - name: Verify encrypted settings and form initialization
+        shell: pwsh
+        run: |
+          $process = Start-Process ./build/windows/win-x64/BibGrab.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw 'Windows application checks failed.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BibGrab-Windows-x64
+          path: build/windows/win-x64/BibGrab.exe
