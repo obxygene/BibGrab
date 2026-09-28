@@ -37,7 +37,8 @@ var ads = new Stub(async (request, number) =>
 using (var http = new HttpClient(ads))
 {
     var result = await new CitationClient(http).LookupAsync("hep-th/9711200", "test-token");
-    Check(result.Bibtex == bibtex && result.Source == "ADS" && ads.Count == 2, "ADS search and export");
+    Check(result.Bibtex == formatted && result.Source == "ADS" && ads.Count == 2,
+        "ADS search, export, and multiline formatting");
 }
 
 var fallback = new Stub((request, number) =>
@@ -49,7 +50,11 @@ var fallback = new Stub((request, number) =>
     return Task.FromResult(Reply(HttpStatusCode.OK, bibtex));
 });
 using (var http = new HttpClient(fallback))
-    Check((await new CitationClient(http).LookupAsync(doi, "test-token")).Source == "DOI service", "Fallback after HTTP 400");
+{
+    var result = await new CitationClient(http).LookupAsync(doi, "test-token");
+    Check(result.Source == "DOI service", "Fallback after HTTP 400");
+    Check(result.Bibtex.Contains(Environment.NewLine + "  title={Example}"), "Format fallback citation across lines");
+}
 
 using (var http = new HttpClient(new Stub((_, _) => Task.FromResult(Reply(HttpStatusCode.BadRequest, "{}")))))
 {
