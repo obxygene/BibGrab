@@ -1,0 +1,9 @@
+name: macOS build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash tests/run.sh
+      - run: bash build.sh
