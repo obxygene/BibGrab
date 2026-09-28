@@ -2,7 +2,7 @@
 
 BibGrab is a lightweight desktop utility for retrieving BibTeX citations from DOI identifiers, publisher URLs, and arXiv links. It provides a menu bar interface on macOS and a system tray interface on Windows. Retrieved citations are displayed in the application and copied to the clipboard.
 
-![BibGrab on macOS: entering a paper link and retrieving a BibTeX citation](docs/images/usage.gif)
+<img src="docs/images/usage.gif" alt="BibGrab on macOS: entering a paper link and retrieving a BibTeX citation" width="480">
 
 *Usage demonstration on macOS.*
 

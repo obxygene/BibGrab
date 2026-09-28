@@ -25,10 +25,10 @@ Adjust the width and frame rate as needed to preserve readability. Keep the file
 
 ## README integration
 
-The README embeds the GIF after its introductory paragraph using:
+The README displays the GIF at 480 pixels wide after its introductory paragraph using:
 
 ```markdown
-![BibGrab on macOS: entering a paper link and retrieving a BibTeX citation](docs/images/usage.gif)
+<img src="docs/images/usage.gif" alt="BibGrab on macOS: entering a paper link and retrieving a BibTeX citation" width="480">
 ```
 
 Commit the image and the README change together:
