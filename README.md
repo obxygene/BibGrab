@@ -34,13 +34,25 @@ Local builds use ad-hoc signing. Distribution outside a development environment 
 
 The Windows application uses Windows Forms and .NET 10. Builds target Windows x64 by default; Windows ARM64 is also available through the build script. Windows 11 is recommended.
 
-To obtain an automated build, open the repository's **Actions** tab, select a successful **Build and test** run, and download **BibGrab-Windows-x64** from its artifacts. Extract the archive and launch `BibGrab.exe`. GitHub sign-in is required to download workflow artifacts. These builds are unsigned development artifacts, not installer packages.
+To obtain an automated build, open the repository's **Actions** tab, select a successful **Build and test** run, and choose the artifact that matches the deployment option:
 
-To build from source, install the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), then run in PowerShell from the repository root:
+- **BibGrab-Windows-x64-Small** is a smaller, framework-dependent executable. Install the [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) first.
+- **BibGrab-Windows-x64-Standalone** includes the .NET runtime and runs without a separate runtime installation. Its larger download is approximately 45 MB.
+
+Extract the downloaded artifact and launch `BibGrab.exe`. GitHub sign-in is required to download workflow artifacts. These builds are unsigned development artifacts, not installer packages.
+
+To build the standalone executable from source, install the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0), then run in PowerShell from the repository root:
 
 ```powershell
 ./windows/build.ps1
-./build/windows/win-x64/BibGrab.exe
+./build/windows/win-x64/self-contained/BibGrab.exe
+```
+
+To build the smaller executable, which requires the .NET 10 Desktop Runtime on the destination computer:
+
+```powershell
+./windows/build.ps1 -SelfContained $false
+./build/windows/win-x64/framework-dependent/BibGrab.exe
 ```
 
 For Windows ARM64:
@@ -49,7 +61,7 @@ For Windows ARM64:
 ./windows/build.ps1 -Runtime win-arm64
 ```
 
-The published executable includes the .NET runtime and does not require a separate runtime installation. Store the executable in a permanent location before enabling **Launch at Login**. Closing the window leaves the application running in the system tray; use **Quit** from the tray menu to exit.
+The standalone executable includes the .NET runtime and does not require a separate runtime installation. Store the executable in a permanent location before enabling **Launch at Login**. Closing the window leaves the application running in the system tray; use **Quit** from the tray menu to exit.
 
 ## Usage
 

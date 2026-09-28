@@ -80,22 +80,23 @@ internal sealed class CitationForm : Form
     private readonly TokenStore tokens;
     private readonly HttpClient http = new() { Timeout = TimeSpan.FromSeconds(25) };
     private readonly TextBox input = new() { Dock = DockStyle.Fill, PlaceholderText = "10.1103/PhysRev.47.777", AccessibleName = "DOI or arXiv link" };
-    private readonly TextBox output = new() { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both, WordWrap = false, AccessibleName = "BibTeX citation" };
+    private readonly TextBox output = new() { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true, AccessibleName = "BibTeX citation" };
     private readonly Label status = new() { Dock = DockStyle.Fill, AutoSize = true, Text = "Ready. Paste a DOI or arXiv link." };
     private readonly Button lookup = new() { Text = "Get BibTeX", AutoSize = true };
     private readonly Button copy = new() { Text = "Copy", AutoSize = true, Enabled = false };
     private CancellationTokenSource? pending;
+    private bool scaled;
 
     public CitationForm(TokenStore store)
     {
         tokens = store;
         Text = "BibGrab";
         Icon = SystemIcons.Application;
-        ClientSize = new Size(590, 380);
-        MinimumSize = new Size(420, 300);
         StartPosition = FormStartPosition.CenterScreen;
-        AutoScaleMode = AutoScaleMode.Dpi;
+        AutoScaleMode = AutoScaleMode.Font;
+        output.Font = new Font(FontFamily.GenericMonospace, Font.Size);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(14), ColumnCount = 1, RowCount = 5 };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -118,6 +119,28 @@ internal sealed class CitationForm : Form
         cancel.Click += (_, _) => pending?.Cancel();
         FormClosing += (_, e) => { if (e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; Hide(); } };
     }
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        ApplyScale();
+    }
+
+    protected override void OnDpiChanged(DpiChangedEventArgs e)
+    {
+        base.OnDpiChanged(e);
+        MinimumSize = Scale(460, 340);
+    }
+
+    private void ApplyScale()
+    {
+        if (scaled) return;
+        scaled = true;
+        MinimumSize = Scale(460, 340);
+        ClientSize = Scale(640, 440);
+    }
+
+    private Size Scale(int width, int height) => LogicalToDeviceUnits(new Size(width, height));
 
     public void FocusInput() { input.Focus(); input.SelectAll(); }
 
@@ -156,10 +179,21 @@ internal sealed class CitationForm : Form
 
     public void EditToken()
     {
-        using var dialog = new Form { Text = "ADS API Token", ClientSize = new Size(470, 190), FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, StartPosition = FormStartPosition.CenterParent };
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(12), RowCount = 3, ColumnCount = 1 };
-        layout.Controls.Add(new Label { AutoSize = true, Text = "Saved once for your Windows account and reused by default.\nClear and save to remove. ADS_API_TOKEN remains a fallback.\nGet a token: ui.adsabs.harvard.edu/user/settings/token" });
-        var field = new TextBox { Dock = DockStyle.Fill, UseSystemPasswordChar = true, AccessibleName = "ADS API token" };
+        using var dialog = new Form
+        {
+            Text = "ADS API Token",
+            FormBorderStyle = FormBorderStyle.FixedDialog,
+            MaximizeBox = false,
+            MinimizeBox = false,
+            StartPosition = FormStartPosition.CenterParent,
+            AutoScaleMode = AutoScaleMode.Font,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink
+        };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(12), RowCount = 3, ColumnCount = 1 };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        layout.Controls.Add(new Label { AutoSize = true, Margin = new Padding(3, 3, 3, 9), Text = "Saved once for your Windows account and reused by default.\nClear and save to remove. ADS_API_TOKEN remains a fallback.\nGet a token: ui.adsabs.harvard.edu/user/settings/token" });
+        var field = new TextBox { Dock = DockStyle.Fill, MinimumSize = new Size(LogicalToDeviceUnits(new Size(380, 0)).Width, 0), Margin = new Padding(3, 3, 3, 9), UseSystemPasswordChar = true, AccessibleName = "ADS API token" };
         try { field.Text = tokens.Load() ?? ""; }
         catch (Exception e) when (e is CryptographicException or IOException or UnauthorizedAccessException) { }
         layout.Controls.Add(field);

@@ -16,14 +16,25 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Check citation lookups with mock HTTP responses
         run: dotnet run --project windows/BibGrab.Checks -c Release
+      - name: Build small Windows application (requires .NET 10 Desktop Runtime)
+        run: ./windows/build.ps1 -SelfContained $false
+      - name: Verify small build
+        shell: pwsh
+        run: |
+          $process = Start-Process ./build/windows/win-x64/framework-dependent/BibGrab.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw 'Windows application checks failed.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BibGrab-Windows-x64-Small
+          path: build/windows/win-x64/framework-dependent/BibGrab.exe
       - name: Build standalone Windows application
         run: ./windows/build.ps1
       - name: Verify encrypted settings and form initialization
         shell: pwsh
         run: |
-          $process = Start-Process ./build/windows/win-x64/BibGrab.exe -ArgumentList '--self-test' -Wait -PassThru
+          $process = Start-Process ./build/windows/win-x64/self-contained/BibGrab.exe -ArgumentList '--self-test' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw 'Windows application checks failed.' }
       - uses: actions/upload-artifact@v4
         with:
-          name: BibGrab-Windows-x64
-          path: build/windows/win-x64/BibGrab.exe
+          name: BibGrab-Windows-x64-Standalone
+          path: build/windows/win-x64/self-contained/BibGrab.exe
