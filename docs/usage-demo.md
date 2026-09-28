@@ -1,6 +1,6 @@
 # Usage demonstration
 
-A short animated demonstration can be embedded directly in the project README. The recording should show a complete citation retrieval workflow without exposing personal settings or unrelated desktop content.
+The README includes a macOS usage recording stored at [`images/usage.gif`](images/usage.gif). The guidance below describes how to record and replace this demonstration.
 
 ## Recording sequence
 
@@ -25,10 +25,10 @@ Adjust the width and frame rate as needed to preserve readability. Keep the file
 
 ## README integration
 
-After saving the GIF at `docs/images/usage.gif`, insert the following Markdown after the introductory paragraph in `README.md`:
+The README embeds the GIF after its introductory paragraph using:
 
 ```markdown
-![BibGrab retrieving a BibTeX citation and copying it to the clipboard](docs/images/usage.gif)
+![BibGrab on macOS: entering a paper link and retrieving a BibTeX citation](docs/images/usage.gif)
 ```
 
 Commit the image and the README change together:
