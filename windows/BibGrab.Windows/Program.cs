@@ -86,6 +86,7 @@ internal sealed class CitationForm : Form
     private readonly Button copy = new() { Text = "Copy", AutoSize = true, Enabled = false };
     private CancellationTokenSource? pending;
     private bool scaled;
+    private string? citationSource;
 
     public CitationForm(TokenStore store)
     {
@@ -150,6 +151,9 @@ internal sealed class CitationForm : Form
         using var cancellation = new CancellationTokenSource();
         pending = cancellation;
         lookup.Enabled = false;
+        output.Clear();
+        copy.Enabled = false;
+        citationSource = null;
         status.Text = "Looking up citation…";
         try
         {
@@ -157,8 +161,8 @@ internal sealed class CitationForm : Form
             var citation = await new CitationClient(http).LookupAsync(input.Text, token, cancellation.Token);
             if (IsDisposed) return;
             output.Text = citation.Bibtex;
+            citationSource = citation.Source;
             copy.Enabled = true;
-            status.Text = $"Retrieved from {citation.Source}.";
             Copy();
         }
         catch (OperationCanceledException) { if (!IsDisposed) status.Text = "Lookup cancelled."; }
@@ -173,8 +177,19 @@ internal sealed class CitationForm : Form
 
     private void Copy()
     {
-        try { Clipboard.SetText(output.Text); status.Text = "Copied BibTeX to clipboard."; }
-        catch (ExternalException) { status.Text = "Citation ready. Clipboard is busy; click Copy to retry."; }
+        try
+        {
+            Clipboard.SetText(output.Text);
+            status.Text = citationSource is null
+                ? "Copied BibTeX to clipboard."
+                : $"Retrieved from {citationSource}; copied to clipboard.";
+        }
+        catch (ExternalException)
+        {
+            status.Text = citationSource is null
+                ? "Citation ready. Clipboard is busy; click Copy to retry."
+                : $"Retrieved from {citationSource}. Clipboard is busy; click Copy to retry.";
+        }
     }
 
     public void EditToken()

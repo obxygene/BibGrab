@@ -53,14 +53,18 @@ public static class BibtexFormatter
                 continue;
             }
 
-            if (current == '"')
+            if (current == '"' && delimiters.Count > 0 &&
+                (delimiters.Count == 1 || delimiters.Peek() == '('))
             {
                 quoted = true;
                 output.Append(current);
             }
             else if (current is '{' or '(')
             {
-                delimiters.Push(current);
+                // Parentheses and quote marks inside a braced value are ordinary
+                // text (including common TeX accents such as {\"u}).
+                if (current == '{' || delimiters.Count == 0 || delimiters.Peek() != '{')
+                    delimiters.Push(current);
                 output.Append(current);
             }
             else if (current is '}' or ')')

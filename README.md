@@ -68,7 +68,7 @@ The standalone executable includes the .NET runtime and does not require a separ
 1. Open BibGrab from the macOS menu bar or Windows system tray.
 2. Enter a DOI, publisher URL, or arXiv identifier.
 3. Press Return on macOS or select **Get BibTeX** on Windows.
-4. Review the citation, whose BibTeX fields are placed on separate lines, and paste it into a bibliography file or reference editor.
+4. Review the citation and paste it into a bibliography file or reference editor. The Windows version places BibTeX fields on separate lines.
 
 Supported input examples:
 

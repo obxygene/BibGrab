@@ -22,6 +22,11 @@ Check(formatted == "@article{Einstein1935," + Environment.NewLine + "  title={Ex
 Check(BibtexFormatter.Format("@article{key,\n  title={A, B},\n  author=\"Smith, Jane\"}") ==
       "@article{key," + Environment.NewLine + "  title={A, B}," + Environment.NewLine + "  author=\"Smith, Jane\"}",
       "Preserve nested commas and normalize existing lines");
+var texValues = "@article{key,author={M{\\\"u}ller (part, two)},title={Quoted \"text, inside\"},year=1935}";
+var formattedTexValues = BibtexFormatter.Format(texValues);
+Check(formattedTexValues.Contains(Environment.NewLine + "  title=") &&
+      formattedTexValues.Contains(Environment.NewLine + "  year=1935}"),
+      "TeX accent, quoted text, and parentheses within braced values");
 var ads = new Stub(async (request, number) =>
 {
     Check(request.Headers.Authorization?.Parameter == "test-token", "ADS authentication");
