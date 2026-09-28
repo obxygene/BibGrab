@@ -17,6 +17,11 @@ try { PaperInput.Normalize("https://example.org/abs/0709.2140"); throw new Excep
 catch (ArgumentException) { }
 
 const string bibtex = "@article{Einstein1935, title={Example}}";
+var formatted = BibtexFormatter.Format(bibtex);
+Check(formatted == "@article{Einstein1935," + Environment.NewLine + "  title={Example}}", "One field per line");
+Check(BibtexFormatter.Format("@article{key,\n  title={A, B},\n  author=\"Smith, Jane\"}") ==
+      "@article{key," + Environment.NewLine + "  title={A, B}," + Environment.NewLine + "  author=\"Smith, Jane\"}",
+      "Preserve nested commas and normalize existing lines");
 var ads = new Stub(async (request, number) =>
 {
     Check(request.Headers.Authorization?.Parameter == "test-token", "ADS authentication");

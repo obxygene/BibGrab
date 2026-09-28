@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -31,6 +32,58 @@ public static class PaperInput
 
 public sealed record Citation(string Bibtex, string Source);
 
+public static class BibtexFormatter
+{
+    public static string Format(string text)
+    {
+        var output = new StringBuilder(text.Length + 32);
+        var delimiters = new Stack<char>();
+        var quoted = false;
+        var escaped = false;
+
+        for (var i = 0; i < text.Length; i++)
+        {
+            var current = text[i];
+            if (quoted)
+            {
+                output.Append(current);
+                if (escaped) escaped = false;
+                else if (current == '\\') escaped = true;
+                else if (current == '"') quoted = false;
+                continue;
+            }
+
+            if (current == '"')
+            {
+                quoted = true;
+                output.Append(current);
+            }
+            else if (current is '{' or '(')
+            {
+                delimiters.Push(current);
+                output.Append(current);
+            }
+            else if (current is '}' or ')')
+            {
+                if (delimiters.Count > 0 &&
+                    ((current == '}' && delimiters.Peek() == '{') || (current == ')' && delimiters.Peek() == '(')))
+                    delimiters.Pop();
+                output.Append(current);
+            }
+            else if (current == ',' && delimiters.Count == 1)
+            {
+                output.Append(',');
+                while (i + 1 < text.Length && char.IsWhiteSpace(text[i + 1])) i++;
+                if (i + 1 < text.Length && text[i + 1] is not '}' and not ')')
+                    output.AppendLine().Append("  ");
+            }
+            else output.Append(current);
+        }
+
+        return output.ToString();
+    }
+}
+
 public sealed class CitationClient(HttpClient http)
 {
     public async Task<Citation> LookupAsync(string input, string? token, CancellationToken cancellation = default)
@@ -50,7 +103,7 @@ public sealed class CitationClient(HttpClient http)
             RequireSuccess(response, "DOI service");
             var text = (await response.Content.ReadAsStringAsync(cancellation)).Trim();
             RequireBibtex(text, "DOI service");
-            return new Citation(text, "DOI service");
+            return new Citation(BibtexFormatter.Format(text), "DOI service");
         }
         catch (Exception e) when (IsLookupFailure(e, cancellation))
         {
@@ -82,7 +135,7 @@ public sealed class CitationClient(HttpClient http)
         using var result = JsonDocument.Parse(await exported.Content.ReadAsStringAsync(cancellation));
         var text = result.RootElement.GetProperty("export").GetString()?.Trim() ?? "";
         RequireBibtex(text, "ADS export");
-        return text;
+        return BibtexFormatter.Format(text);
     }
 
     private static bool IsLookupFailure(Exception e, CancellationToken cancellation) =>
