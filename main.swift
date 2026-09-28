@@ -49,7 +49,7 @@ func looksLikeDOI(_ s: String) -> Bool {
     arxivID(s) != nil || s.range(of: #"10\.\d{4,9}/"#, options: .regularExpression) != nil
 }
 
-/// Pull the citation key out of "@article{Key2018,…}" for the status line.
+/// Pull the citation key out of "@article{Key1935,…}" for the status line.
 func bibKey(_ s: String) -> String {
     guard let open = s.range(of: "{"),
           let comma = s.range(of: ",", range: open.upperBound..<s.endIndex) else { return "entry" }
@@ -261,7 +261,7 @@ final class BibWindow: NSObject, NSTextFieldDelegate, NSWindowDelegate {
         title.font = .systemFont(ofSize: 11)
         title.textColor = .secondaryLabelColor
 
-        field.placeholderString = "10.1103/PhysRevB.98.045103"
+        field.placeholderString = "10.1103/PhysRev.47.777"
         field.font = .systemFont(ofSize: 13)
         field.delegate = self
         field.target = self

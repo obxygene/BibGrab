@@ -25,10 +25,10 @@ Click the book icon in the menu bar, paste a DOI or arXiv link, and press Return
 
 Accepted examples:
 
-- `10.1103/PhysRevB.98.045103`
-- `https://doi.org/10.1103/PhysRevB.98.045103`
-- `https://arxiv.org/abs/2608.08120`
-- `arXiv:2608.08120` (PDF URLs and version suffixes also work)
+- `10.1103/PhysRev.47.777`
+- `https://doi.org/10.1103/PhysRev.47.777`
+- `https://arxiv.org/abs/hep-th/9711200`
+- `arXiv:hep-th/9711200` (PDF URLs and version suffixes also work)
 
 ADS is preferred when configured. Otherwise the app uses DOI content negotiation, which routes to Crossref or DataCite. An arXiv identifier is normalized to its arXiv-issued DOI; ADS is searched by arXiv identifier. Very recent records may not yet be indexed by either service.
 
@@ -41,7 +41,7 @@ The token is stored in your macOS user preferences (`org.bibgrab.settings`), out
 ## Terminal usage
 
 ```sh
-build/BibGrab.app/Contents/MacOS/BibGrab --doi https://arxiv.org/abs/2608.08120 --no-copy
+build/BibGrab.app/Contents/MacOS/BibGrab --doi https://arxiv.org/abs/hep-th/9711200 --no-copy
 ```
 
 Omit `--no-copy` to also copy the citation.
