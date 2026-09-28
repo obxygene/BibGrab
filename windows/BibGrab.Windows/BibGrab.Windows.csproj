@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>BibGrab</AssemblyName>
+    <RootNamespace>BibGrab</RootNamespace>
     <Version>1.1.0</Version>
   </PropertyGroup>
   <ItemGroup>
